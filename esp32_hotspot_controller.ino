@@ -16,6 +16,22 @@ IPAddress NMask(255, 255, 255, 0);
 AsyncWebServer server(80);
 
 
+
+
+int button = 23;
+int pressed_mill = 0;
+bool pressed = false;
+
+// Pins
+int pin_1 = 27;
+int pin_2 = 26;
+int pin_3 = 32;
+int pin_4 = 33;
+
+
+
+
+
 const char MAIN_page[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -94,7 +110,7 @@ const char MAIN_page[] PROGMEM = R"rawliteral(
         <input type="checkbox" id="reverse" name="reverse" >
         <span class="slider"></span>
       </label>
-      <br/><br/><br/>
+      <br/><br/>
       <label for="outputone"><p style="font-size: 21px;">Delay pin 2:</p></label>
       <input type="number" style="font-size: 21px;" id="outputone" name="outputone" />
       <br/><br/>
@@ -107,7 +123,7 @@ const char MAIN_page[] PROGMEM = R"rawliteral(
       <br/>
       <div>
         <button id="save_button" style="font-size: 21px; border-radius: 15%;" name="save" onclick="SaveRequest()">Save</button>
-        <!--<input class="button" id="save_button" type="submit" value="Save" name="save">-->
+        <button id="on_off" style="font-size: 21px; border-radius: 15%;" name="on_off" onclick="OnOff()">ON/OFF</button>
         <script>
           function SaveRequest() {
             let reverse_val = document.getElementById("reverse").checked;
@@ -119,8 +135,16 @@ const char MAIN_page[] PROGMEM = R"rawliteral(
             client.open("GET", url, true);
             client.send(null); 
           }
+          function OnOff() {
+            var url = "/run"; // http://192.168.1.1:80
+            var client = new XMLHttpRequest();
+            client.open("GET", url, true);
+            client.send(null); 
+          }
         </script>
       </div>
+      <br/><br/>
+      <br/>
   </body>
 </html>
 )rawliteral";
@@ -139,64 +163,6 @@ boolean checkbox_rev = false;
 int val_1 = 0, val_2 = 0, val_3 = 0;
 
 
-
-
-// Create WIFI HotSpot
-void create_wifi_hotspot() {
-  // Remove the password parameter, if you want the AP (Access Point) to be open
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, password);
-  delay(100);
-  // Seting Fixed IP
-  WiFi.softAPConfig(Ip, Ip, NMask);
-  // Fixed IP
-  IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
-}
-
-
-// Start The Server
-void start_server() {
-  // Send web page with input fields to client
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/html", MAIN_page);
-  });
-  // When Click Save Button
-  server.on("/save", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    int paramsNr = request->params();
-    for ( int i = 0; i < paramsNr; i++ ) {
-      AsyncWebParameter* p = request->getParam(i);
-      if ( p->name() == "reverse" )     { checkbox_rev = (p->value() == "true"? true : false); }
-      if ( p->name() == "outputone" )   { val_1 = p->value().toInt(); }
-      if ( p->name() == "outputtow" )   { val_2 = p->value().toInt(); }
-      if ( p->name() == "outputthree" ) { val_3 = p->value().toInt(); }
-    }
-    Serial.println(String(checkbox_rev) + "  " + String(val_1) + "  " + String(val_2) + "  " + String(val_3));
-    request->send(200, "text/html", MAIN_page);
-  });
-  // On Error
-  server.onNotFound(notFound);
-  // Start
-  server.begin();
-}
-
-
-
-
-
-
-
-
-int button = 23;
-int pressed_mill = 0;
-bool pressed = false;
-
-// Pins
-int pin_1 = 27;
-int pin_2 = 26;
-int pin_3 = 32;
-int pin_4 = 33;
 
 
 
@@ -243,6 +209,96 @@ void pins_off_reverse() {
 
 
 
+// Start Proccess 
+void start_proccess() {
+  pressed = !pressed;
+  // On Pins
+  if (pressed) {
+    if (! checkbox_rev) {
+      pins_on();
+    } else {
+      pins_on_reverse();
+    }
+  }
+  // Off Pins
+  else {
+    if (! checkbox_rev) {
+      pins_off();
+    } else {
+      pins_off_reverse();
+    }
+  }
+}
+
+
+
+
+
+
+
+
+// Create WIFI HotSpot
+void create_wifi_hotspot() {
+  // Remove the password parameter, if you want the AP (Access Point) to be open
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
+  delay(100);
+  // Seting Fixed IP
+  WiFi.softAPConfig(Ip, Ip, NMask);
+  // Fixed IP
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+}
+
+
+// Start The Server
+void start_server() {
+  // Send web page with input fields to client
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", MAIN_page);
+  });
+  // When Click Save Button
+  server.on("/save", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    int paramsNr = request->params();
+    for ( int i = 0; i < paramsNr; i++ ) {
+      AsyncWebParameter* p = request->getParam(i);
+      if ( p->name() == "reverse" )     { checkbox_rev = (p->value() == "true"? true : false); }
+      if ( p->name() == "outputone" )   { val_1 = p->value().toInt(); }
+      if ( p->name() == "outputtow" )   { val_2 = p->value().toInt(); }
+      if ( p->name() == "outputthree" ) { val_3 = p->value().toInt(); }
+    }
+    Serial.println(String(checkbox_rev) + "  " + String(val_1) + "  " + String(val_2) + "  " + String(val_3));
+    request->send(200, "text/html", MAIN_page);
+  });
+  // When Click Save Button
+  server.on("/run", HTTP_GET, [] (AsyncWebServerRequest *request) {
+    Serial.println("Run Proccess.");
+    start_proccess();
+    request->send(200, "text/html", MAIN_page);
+  });
+  // On Error
+  server.onNotFound(notFound);
+  // Start
+  server.begin();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void setup() {
   Serial.begin(115200);
   pinMode(button,INPUT);
@@ -271,24 +327,8 @@ void loop(){
     pressed_mill = 0;
   }
   // If Pin GPIO 23 == HIGHT
-  if (pressed_mill == 1) {
-    pressed = !pressed;
-    // On Pins
-    if (pressed) {
-      if (! checkbox_rev) {
-        pins_on();
-      } else {
-        pins_on_reverse();
-      }
-    }
-    // Off Pins
-    else {
-      if (! checkbox_rev) {
-        pins_off();
-      } else {
-        pins_off_reverse();
-      }
-    }
+  if ( (pressed_mill == 1) ) {
+    start_proccess();
   }
   
 }
