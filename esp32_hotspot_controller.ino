@@ -95,13 +95,13 @@ const char MAIN_page[] PROGMEM = R"rawliteral(
         <span class="slider"></span>
       </label>
       <br/><br/><br/>
-      <label for="outputone"><p style="font-size: 21px;">Output 1:</p></label>
+      <label for="outputone"><p style="font-size: 21px;">Delay pin 2:</p></label>
       <input type="number" style="font-size: 21px;" id="outputone" name="outputone" />
       <br/><br/>
-      <label for="outputtow"><p style="font-size: 21px;">Output 2:</p></label>
+      <label for="outputtow"><p style="font-size: 21px;">Delay pin 3:</p></label>
       <input type="number" style="font-size: 21px;" id="outputtow" name="outputtow" />
       <br/><br/>
-      <label for="outputthree"><p style="font-size: 21px;">Output 3:</p></label>
+      <label for="outputthree"><p style="font-size: 21px;">Delay pin 4:</p></label>
       <input type="number" style="font-size: 21px;" id="outputthree" name="outputthree" />
       <br/><br/>
       <br/>
@@ -184,8 +184,72 @@ void start_server() {
 
 
 
+
+
+
+
+int button = 23;
+int pressed_mill = 0;
+bool pressed = false;
+
+// Pins
+int pin_1 = 27;
+int pin_2 = 26;
+int pin_3 = 32;
+int pin_4 = 33;
+
+
+
+
+void pins_on() {
+  digitalWrite(pin_1,HIGH);
+  delay(val_1);
+  digitalWrite(pin_2,HIGH);
+  delay(val_2);
+  digitalWrite(pin_3,HIGH);
+  delay(val_3);
+  digitalWrite(pin_4,HIGH);
+}
+
+void pins_off() {
+  digitalWrite(pin_1,LOW);
+  delay(val_1);
+  digitalWrite(pin_2,LOW);
+  delay(val_2);
+  digitalWrite(pin_3,LOW);
+  delay(val_3);
+  digitalWrite(pin_4,LOW);
+}
+
+void pins_on_reverse() {
+  digitalWrite(pin_4,HIGH);
+  delay(val_1);
+  digitalWrite(pin_3,HIGH);
+  delay(val_2);
+  digitalWrite(pin_2,HIGH);
+  delay(val_3);
+  digitalWrite(pin_1,HIGH);
+}
+
+void pins_off_reverse() {
+  digitalWrite(pin_4,LOW);
+  delay(val_1);
+  digitalWrite(pin_3,LOW);
+  delay(val_2);
+  digitalWrite(pin_2,LOW);
+  delay(val_3);
+  digitalWrite(pin_1,LOW);
+}
+
+
+
 void setup() {
   Serial.begin(115200);
+  pinMode(button,INPUT);
+  pinMode(pin_1,OUTPUT);
+  pinMode(pin_2,OUTPUT);
+  pinMode(pin_3,OUTPUT);
+  pinMode(pin_4,OUTPUT);
   create_wifi_hotspot();
   start_server();
 }
@@ -199,8 +263,32 @@ void setup() {
 void loop(){
 
   // If reverce is checked
-  if (checkbox_rev) {
-    
+  if (digitalRead(button)) {
+    pressed_mill++;
+    if (pressed_mill == 1000) {pressed_mill = 2;}
+    delay(150);
+  } else {
+    pressed_mill = 0;
+  }
+  // If Pin GPIO 23 == HIGHT
+  if (pressed_mill == 1) {
+    pressed = !pressed;
+    // On Pins
+    if (pressed) {
+      if (! checkbox_rev) {
+        pins_on();
+      } else {
+        pins_on_reverse();
+      }
+    }
+    // Off Pins
+    else {
+      if (! checkbox_rev) {
+        pins_off();
+      } else {
+        pins_off_reverse();
+      }
+    }
   }
   
 }
