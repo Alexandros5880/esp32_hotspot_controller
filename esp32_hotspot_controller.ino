@@ -21,6 +21,7 @@ AsyncWebServer server(80);
 int button = 23;
 int pressed_mill = 0;
 bool pressed = false;
+int reverse_pin = 35;
 
 // Pins
 int pin_1 = 27;
@@ -214,18 +215,18 @@ void start_proccess() {
   pressed = !pressed;
   // On Pins
   if (pressed) {
-    if (! checkbox_rev) {
-      pins_on();
-    } else {
+    if ( (checkbox_rev) || (digitalRead(reverse_pin)) ) {
       pins_on_reverse();
+    } else {
+      pins_on();
     }
   }
   // Off Pins
   else {
-    if (! checkbox_rev) {
-      pins_off();
-    } else {
+    if ( (checkbox_rev) || (digitalRead(reverse_pin)) ) {
       pins_off_reverse();
+    } else {
+      pins_off();
     }
   }
 }
@@ -302,6 +303,7 @@ void start_server() {
 void setup() {
   Serial.begin(115200);
   pinMode(button,INPUT);
+  pinMode(reverse_pin,INPUT);
   pinMode(pin_1,OUTPUT);
   pinMode(pin_2,OUTPUT);
   pinMode(pin_3,OUTPUT);
@@ -318,7 +320,7 @@ void setup() {
 
 void loop(){
 
-  // If reverce is checked
+  // If start is checked
   if (digitalRead(button)) {
     pressed_mill++;
     if (pressed_mill == 1000) {pressed_mill = 2;}
