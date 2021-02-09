@@ -24,12 +24,12 @@ bool pressed = false;
 int reverse_pin = 35;
 
 // Pins
-int pin_1 = 27;
-int pin_2 = 26;
-int pin_3 = 25;
-int pin_4 = 32;
-int pin_5 = 33;
-int pin_out = 14;
+int pin_1 = 12;
+int pin_2 = 13;
+int pin_3 = 14;
+int pin_4 = 27;
+int pin_5 = 26;
+int pin_out = 18;
 
 
 
@@ -175,6 +175,7 @@ int val_1 = 0, val_2 = 0, val_3 = 0, val_4 = 0;
 
 void pins_on() {
   digitalWrite(pin_out,HIGH);
+  Serial.println("OUTPUT PIN: HIGH");
   digitalWrite(pin_1,HIGH);
   delay(val_1);
   digitalWrite(pin_2,HIGH);
@@ -185,10 +186,12 @@ void pins_on() {
   delay(val_4);
   digitalWrite(pin_5,HIGH);
   digitalWrite(pin_out,LOW);
+  Serial.println("OUTPUT PIN: LOW");
 }
 
 void pins_off() {
   digitalWrite(pin_out,HIGH);
+  Serial.println("OUTPUT PIN: HIGH");
   digitalWrite(pin_1,LOW);
   delay(val_1);
   digitalWrite(pin_2,LOW);
@@ -199,10 +202,12 @@ void pins_off() {
   delay(val_4);
   digitalWrite(pin_5,LOW);
   digitalWrite(pin_out,LOW);
+  Serial.println("OUTPUT PIN: LOW");
 }
 
 void pins_on_reverse() {
   digitalWrite(pin_out,HIGH);
+  Serial.println("OUTPUT PIN: HIGH");
   digitalWrite(pin_5,HIGH);
   delay(val_1);
   digitalWrite(pin_4,HIGH);
@@ -213,10 +218,12 @@ void pins_on_reverse() {
   delay(val_4);
   digitalWrite(pin_1,HIGH);
   digitalWrite(pin_out,LOW);
+  Serial.println("OUTPUT PIN: LOW");
 }
 
 void pins_off_reverse() {
   digitalWrite(pin_out,HIGH);
+  Serial.println("OUTPUT PIN: HIGH");
   digitalWrite(pin_5,LOW);
   delay(val_1);
   digitalWrite(pin_4,LOW);
@@ -227,6 +234,7 @@ void pins_off_reverse() {
   delay(val_4);
   digitalWrite(pin_1,LOW);
   digitalWrite(pin_out,LOW);
+  Serial.println("OUTPUT PIN: LOW");
 }
 
 
@@ -330,6 +338,7 @@ void setup() {
   pinMode(pin_2,OUTPUT);
   pinMode(pin_3,OUTPUT);
   pinMode(pin_4,OUTPUT);
+  pinMode(pin_5,OUTPUT);
   pinMode(pin_out,OUTPUT);
   create_wifi_hotspot();
   start_server();
